@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily Scoop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="masthead">
+        <div class="masthead-top">
+            <div class="masthead-left">
+                <button class="date-nav" id="prevDay" aria-label="Previous day">&#8592;</button>
+                <span class="date-display" id="dateDisplay"></span>
+                <button class="date-nav" id="nextDay" aria-label="Next day">&#8594;</button>
+            </div>
+            <div class="masthead-center">
+                <h1 class="newspaper-title">The Daily Scoop</h1>
+                <p class="tagline">News that actually matters — explained for you</p>
+            </div>
+            <div class="masthead-right">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                </button>
+            </div>
+        </div>
+        <div class="masthead-rule"></div>
+    </header>
+
+    <main class="front-page" id="frontPage">
+        <!-- Content rendered by app.js -->
+    </main>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="skeleton-grid">
+            <div class="skeleton-hero">
+                <div class="skeleton-img"></div>
+                <div class="skeleton-line w80"></div>
+                <div class="skeleton-line w60"></div>
+                <div class="skeleton-line w90"></div>
+                <div class="skeleton-line w70"></div>
+            </div>
+            <div class="skeleton-briefs">
+                <div class="skeleton-line w90"></div>
+                <div class="skeleton-line w70"></div>
+                <div class="skeleton-spacer"></div>
+                <div class="skeleton-line w80"></div>
+                <div class="skeleton-line w60"></div>
+                <div class="skeleton-spacer"></div>
+                <div class="skeleton-line w90"></div>
+                <div class="skeleton-line w50"></div>
+            </div>
+            <div class="skeleton-medium">
+                <div class="skeleton-img-sm"></div>
+                <div class="skeleton-line w80"></div>
+                <div class="skeleton-line w60"></div>
+            </div>
+            <div class="skeleton-medium">
+                <div class="skeleton-img-sm"></div>
+                <div class="skeleton-line w70"></div>
+                <div class="skeleton-line w90"></div>
+            </div>
+            <div class="skeleton-medium">
+                <div class="skeleton-img-sm"></div>
+                <div class="skeleton-line w80"></div>
+                <div class="skeleton-line w50"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="error-banner" id="errorBanner" style="display:none;">
+        <span id="errorMessage"></span>
+        <button id="errorRetry">Retry</button>
+        <button id="errorDismiss">✕</button>
+    </div>
+
+    <div class="api-key-modal" id="apiKeyModal" style="display:none;">
+        <div class="api-key-dialog">
+            <h2>Welcome to The Daily Scoop</h2>
+            <p>To get AI-rewritten headlines, enter your OpenAI API key below. Your key is stored locally in your browser and never sent anywhere except OpenAI.</p>
+            <p class="api-key-note">Don't have a key? No worries — the news will still load with original text from Wikipedia.</p>
+            <input type="password" id="apiKeyInput" placeholder="sk-proj-..." autocomplete="off">
+            <div class="api-key-buttons">
+                <button id="apiKeySave" class="btn-primary">Save Key</button>
+                <button id="apiKeySkip" class="btn-secondary">Skip (no AI)</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p>Powered by <a href="https://en.wikipedia.org/wiki/Portal:Current_events" target="_blank">Wikipedia Current Events</a></p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
