@@ -8,13 +8,15 @@ const MAX_CACHED_DAYS = 7;
 // API key: loaded from URL hash (#key=...) or localStorage, or prompted
 function getApiKey() {
     // Check URL hash first: index.html#key=sk-proj-...
-    const hashParams = new URLSearchParams(window.location.hash.slice(1));
-    const hashKey = hashParams.get('key');
-    if (hashKey) {
-        localStorage.setItem('dailyscoop-apikey', hashKey);
-        // Clean the URL so key isn't visible
-        history.replaceState(null, '', window.location.pathname);
-        return hashKey;
+    const hash = window.location.hash;
+    if (hash.startsWith('#key=')) {
+        const hashKey = hash.slice(5); // everything after '#key='
+        if (hashKey) {
+            localStorage.setItem('dailyscoop-apikey', hashKey);
+            // Clean the URL so key isn't visible
+            history.replaceState(null, '', window.location.pathname);
+            return hashKey;
+        }
     }
     // Check localStorage
     const stored = localStorage.getItem('dailyscoop-apikey');
