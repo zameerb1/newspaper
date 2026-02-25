@@ -563,11 +563,13 @@ function renderNewspaper(layout) {
         briefs.forEach(story => {
             const item = document.createElement('div');
             item.className = 'brief-item';
+            item.style.cursor = 'pointer';
             item.innerHTML = `
                 <div class="story-category" style="color: ${getCategoryColor(story.category)}">${story.category}</div>
-                <div class="story-headline"><a href="https://en.wikipedia.org/wiki/${encodeURIComponent(story.wikiLinks[0]?.article || '')}" target="_blank">${escapeHtml(story.headline)}</a></div>
+                <div class="story-headline">${escapeHtml(story.headline)}</div>
                 <div class="story-summary">${escapeHtml(story.summary)}</div>
             `;
+            item.addEventListener('click', () => openArticleView(story));
             briefsCol.appendChild(item);
         });
         frontPage.appendChild(briefsCol);
@@ -601,10 +603,7 @@ function renderNewspaper(layout) {
 function createStoryElement(story, className) {
     const article = document.createElement('article');
     article.className = `story ${className} fade-in`;
-
-    const wikiLink = story.wikiLinks[0]?.article
-        ? `https://en.wikipedia.org/wiki/${encodeURIComponent(story.wikiLinks[0].article)}`
-        : '#';
+    article.style.cursor = 'pointer';
 
     let imageHtml = '';
     if (story.image) {
@@ -620,25 +619,21 @@ function createStoryElement(story, className) {
         whyHtml = `<div class="story-why">${escapeHtml(story.whyItMatters)}</div>`;
     }
 
-    let sourceHtml = '';
-    if (story.sourceLinks && story.sourceLinks.length > 0) {
-        const links = story.sourceLinks
-            .slice(0, 2)
-            .map(s => `<a href="${escapeHtml(s.url)}" target="_blank">${escapeHtml(s.text)}</a>`)
-            .join(' · ');
-        sourceHtml = `<div class="story-source">${links} · <a href="${wikiLink}" target="_blank">Wikipedia</a></div>`;
-    } else {
-        sourceHtml = `<div class="story-source"><a href="${wikiLink}" target="_blank">Read more on Wikipedia →</a></div>`;
-    }
+    const sourceText = story.sourceLinks && story.sourceLinks.length > 0
+        ? story.sourceLinks.slice(0, 2).map(s => escapeHtml(s.text)).join(' · ')
+        : '';
 
     article.innerHTML = `
         <div class="story-category" style="color: ${getCategoryColor(story.category)}">${escapeHtml(story.category)}</div>
         ${imageHtml}
-        <div class="story-headline"><a href="${wikiLink}" target="_blank">${escapeHtml(story.headline)}</a></div>
+        <div class="story-headline">${escapeHtml(story.headline)}</div>
         <div class="story-summary">${escapeHtml(story.summary)}</div>
         ${whyHtml}
-        ${sourceHtml}
+        ${sourceText ? `<div class="story-source">${sourceText}</div>` : ''}
     `;
+
+    // Click to open article view
+    article.addEventListener('click', () => openArticleView(story));
 
     return article;
 }
@@ -669,4 +664,91 @@ function escapeHtml(str) {
 function showError(msg) {
     errorMessage.textContent = msg;
     errorBanner.style.display = 'flex';
+}
+
+// === Article View ===
+function openArticleView(story) {
+    const overlay = document.getElementById('articleOverlay');
+    const content = document.getElementById('articleContent');
+    const closeBtn = document.getElementById('articleClose');
+
+    let imageHtml = '';
+    if (story.image) {
+        imageHtml = `
+            <div class="article-img-wrap">
+                <img class="article-img" src="${story.image.url}" alt="">
+            </div>
+        `;
+    }
+
+    let whyHtml = '';
+    if (story.whyItMatters) {
+        whyHtml = `<div class="article-why">${escapeHtml(story.whyItMatters)}</div>`;
+    }
+
+    // Source links
+    let sourcesHtml = '';
+    if (story.sourceLinks && story.sourceLinks.length > 0) {
+        const links = story.sourceLinks
+            .map(s => `<a href="${escapeHtml(s.url)}" target="_blank">${escapeHtml(s.text)}</a>`)
+            .join(' ');
+        sourcesHtml = `
+            <div class="article-sources">
+                <div class="article-sources-title">Sources</div>
+                ${links}
+            </div>
+        `;
+    }
+
+    // Related Wikipedia articles
+    let wikiHtml = '';
+    if (story.wikiLinks && story.wikiLinks.length > 0) {
+        const chips = story.wikiLinks
+            .slice(0, 10)
+            .map(l => `<a class="wiki-link-chip" href="https://en.wikipedia.org/wiki/${encodeURIComponent(l.article)}" target="_blank">${escapeHtml(l.display)}</a>`)
+            .join('');
+        wikiHtml = `
+            <div class="article-wiki-links">
+                <div class="article-wiki-title">Learn more on Wikipedia</div>
+                ${chips}
+            </div>
+        `;
+    }
+
+    // Date
+    const dateStr = formatDateDisplay(currentDate);
+
+    content.innerHTML = `
+        <div class="article-category" style="color: ${getCategoryColor(story.category)}">${escapeHtml(story.category)}</div>
+        <h1 class="article-headline">${escapeHtml(story.headline)}</h1>
+        <div class="article-meta">${dateStr} · The Daily Scoop</div>
+        ${imageHtml}
+        <div class="article-body">
+            <p>${escapeHtml(story.summary)}</p>
+        </div>
+        ${whyHtml}
+        ${sourcesHtml}
+        ${wikiHtml}
+    `;
+
+    overlay.style.display = 'block';
+    overlay.scrollTop = 0;
+    document.body.style.overflow = 'hidden';
+
+    // Close handler
+    const handleClose = () => {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+        closeBtn.removeEventListener('click', handleClose);
+    };
+    closeBtn.addEventListener('click', handleClose);
+
+    // Escape key closes
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            handleClose();
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
 }
